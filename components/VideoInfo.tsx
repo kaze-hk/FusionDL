@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 interface VideoInfoProps {
-  onDownload: (url: string) => void;
+  onDownload: (url: string, videoInfo?: any) => void;
 }
 
 export default function VideoInfo({ onDownload }: VideoInfoProps) {
@@ -44,7 +44,7 @@ export default function VideoInfo({ onDownload }: VideoInfoProps) {
   };
 
   const handleDownload = () => {
-    onDownload(url);
+    onDownload(url, info);
     setUrl('');
     setInfo(null);
   };

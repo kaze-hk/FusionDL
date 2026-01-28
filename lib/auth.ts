@@ -1,9 +1,7 @@
 import { NextRequest } from 'next/server';
 import { getUserByUsername, verifyPassword } from './users';
 import crypto from 'crypto';
-
-// 会话存储（生产环境应使用 Redis 或数据库）
-const sessions = new Map<string, { userId: number; username: string; isAdmin: boolean; expiresAt: number }>();
+import db from './db';
 
 // 生成会话令牌
 export function generateToken(): string {
@@ -15,36 +13,48 @@ export function createSession(userId: number, username: string, isAdmin: boolean
   const token = generateToken();
   const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7天过期
   
-  sessions.set(token, {
-    userId,
-    username,
-    isAdmin,
-    expiresAt,
-  });
+  const stmt = db.prepare(`
+    INSERT INTO sessions (token, user_id, username, is_admin, expires_at) 
+    VALUES (?, ?, ?, ?, ?)
+  `);
+  stmt.run(token, userId, username, isAdmin ? 1 : 0, expiresAt);
   
   return token;
 }
 
 // 获取会话
 export function getSession(token: string) {
-  const session = sessions.get(token);
+  const stmt = db.prepare('SELECT * FROM sessions WHERE token = ?');
+  const session = stmt.get(token) as { 
+    token: string; 
+    user_id: number; 
+    username: string; 
+    is_admin: number; 
+    expires_at: number 
+  } | undefined;
   
   if (!session) {
     return null;
   }
   
   // 检查是否过期
-  if (Date.now() > session.expiresAt) {
-    sessions.delete(token);
+  if (Date.now() > session.expires_at) {
+    deleteSession(token);
     return null;
   }
   
-  return session;
+  return {
+    userId: session.user_id,
+    username: session.username,
+    isAdmin: session.is_admin === 1,
+    expiresAt: session.expires_at,
+  };
 }
 
 // 删除会话
 export function deleteSession(token: string) {
-  sessions.delete(token);
+  const stmt = db.prepare('DELETE FROM sessions WHERE token = ?');
+  stmt.run(token);
 }
 
 // 从请求中获取会话
@@ -89,11 +99,8 @@ export function authenticate(username: string, password: string): { success: boo
 // 清理过期会话（定期调用）
 export function cleanupExpiredSessions() {
   const now = Date.now();
-  for (const [token, session] of sessions.entries()) {
-    if (now > session.expiresAt) {
-      sessions.delete(token);
-    }
-  }
+  const stmt = db.prepare('DELETE FROM sessions WHERE expires_at < ?');
+  stmt.run(now);
 }
 
 // 每小时清理一次过期会话

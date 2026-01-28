@@ -185,13 +185,15 @@ export default function DownloadList() {
                 {download.status === 'downloading' && (
                   <div className="mb-2 sm:mb-3">
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs text-gray-600">下载进度</span>
-                      <span className="text-xs font-semibold text-blue-600">{download.progress || 0}%</span>
+                      <span className="text-xs text-gray-600">正在下载...</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 overflow-hidden">
+                    <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 overflow-hidden relative">
                       <div
-                        className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 sm:h-2.5 rounded-full transition-all duration-300 ease-out"
-                        style={{ width: `${download.progress || 0}%` }}
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-500 to-transparent h-full animate-shimmer"
+                        style={{
+                          backgroundSize: '200% 100%',
+                          animation: 'shimmer 1.5s infinite'
+                        }}
                       ></div>
                     </div>
                   </div>

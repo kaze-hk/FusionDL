@@ -15,7 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "FusionDL - 多平台视频下载器",
   description: "使用 yt-dlp 内核，支持从 YouTube、Bilibili 等多个平台下载视频。",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
 };
 
 export default function RootLayout({

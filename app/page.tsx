@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import VideoInfo from '@/components/VideoInfo';
 import DownloadList from '@/components/DownloadList';
+import TrafficInfo from '@/components/TrafficInfo';
 
 interface UserInfo {
   userId: number;
@@ -81,12 +82,12 @@ export default function Home() {
     }
   };
 
-  const handleDownload = async (url: string) => {
+  const handleDownload = async (url: string, videoInfo?: any) => {
     try {
       const response = await fetch('/api/downloads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, videoInfo }),
       });
 
       const data = await response.json();
@@ -167,6 +168,7 @@ export default function Home() {
         </header>
 
         <div className="grid gap-4 sm:gap-6 lg:grid-cols-1 w-full">
+          <TrafficInfo />
           <VideoInfo onDownload={handleDownload} />
           <DownloadList key={refreshKey} />
         </div>

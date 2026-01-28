@@ -9,6 +9,8 @@ export interface User {
   password_hash?: string;
   is_admin?: number;
   is_suspended?: number;
+  traffic_limit?: number;
+  traffic_used?: number;
   created_at?: string;
   updated_at?: string;
 }

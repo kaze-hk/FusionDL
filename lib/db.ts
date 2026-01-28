@@ -36,8 +36,38 @@ db.exec(`
     password_hash TEXT NOT NULL,
     is_admin INTEGER DEFAULT 0,
     is_suspended INTEGER DEFAULT 0,
+    traffic_limit INTEGER DEFAULT 1073741824,
+    traffic_used INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+// 流量使用记录表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS traffic_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    download_id INTEGER,
+    type TEXT NOT NULL,
+    bytes INTEGER NOT NULL,
+    description TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (download_id) REFERENCES downloads(id) ON DELETE SET NULL
+  )
+`);
+
+// 会话表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS sessions (
+    token TEXT PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    username TEXT NOT NULL,
+    is_admin INTEGER NOT NULL,
+    expires_at INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
   )
 `);
 
